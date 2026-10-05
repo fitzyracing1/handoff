@@ -1,0 +1,42 @@
+---
+kind: handoff
+ext: .handoff
+version: 1
+mime: application/x-handoff
+binary: false
+trigger: handoff pick up where you left off continue this chat
+---
+
+## Purpose
+
+A handoff is the unit another chat needs to continue a job. It carries a paste block and a file list. A note without files is not a handoff.
+
+## Structure
+
+1. Line 1 is the magic banner `# handoff v1`
+2. A YAML block between `---` fences with keys mission, continue_from, stop_rule
+3. A `FILES` section, one path per line
+4. A `PASTE` section, the exact text the next chat must receive
+5. A `RULES` section, one `KEY: value` per line
+
+## Parse rules
+
+- Reject the file if line 1 is not `# handoff v1`
+- Read mission, continue_from, and stop_rule from the fenced block
+- FILES lines are paths. Blank lines are ignored
+- PASTE is raw text until the next section heading
+- RULES split on the first `: `
+- A handoff with an empty FILES list is invalid
+- A handoff with an empty PASTE section is invalid
+
+## Write rules
+
+- Always start with `# handoff v1`
+- Name the body to continue, not a summary of the ticks
+- List only files the next chat must open
+- Put the paste block in PASTE, verbatim
+- Do not claim a tick continued unless the stop_rule test passed
+
+## Example
+
+See sample.handoff

@@ -1,0 +1,21 @@
+# handoff v1
+---
+mission: Continue Lumen from the tick 8 body
+continue_from: robot_tick_8.py
+stop_rule: tick 1 counts parts; tick 2 must beat that count or the run stops
+---
+FILES
+lumen.py
+beat.py
+test_beat.py
+robot.py
+robot_template.py
+robot_tick_8.py
+altnet.py
+PASTE
+You are continuing Lumen. Do not restart the body. Read the files listed above before you write. Tick 1 counts parts. Tick 2 must beat that count or the run stops. A tie stops. Build on robot_tick_8.py. Leave beat() alone. Run test_beat.py before claiming a tick continued.
+RULES
+score: 1.36
+parts: sense, balance, grip, critic, memory, repair, route, teach
+result: a committed file, not a tick log
+repo: https://github.com/fitzyracing1/lumen
