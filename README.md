@@ -27,3 +27,8 @@ python3 parse_handoff.py sample.handoff
 ```
 
 Work continues in the repo named by `RULES` `repo`. The sample points at https://github.com/fitzyracing1/lumen.
+
+## Documentation
+
+- In-repo docs: [docs/](docs/index.md)
+- Wiki: [https://github.com/fitzyracing1/handoff/wiki](https://github.com/fitzyracing1/handoff/wiki)
