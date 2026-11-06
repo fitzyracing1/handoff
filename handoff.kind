@@ -1,11 +1,15 @@
 ---
 kind: handoff
 ext: .handoff
-version: 1
+version: 2
+versions: 1, 2
+spec: docs/language.md
 mime: application/x-handoff
 binary: false
 trigger: handoff pick up where you left off continue this chat
 ---
+
+Full spec: docs/language.md. This file is the short declaration and must agree with it.
 
 ## Purpose
 
@@ -13,27 +17,33 @@ A handoff is the unit another chat needs to continue a job. It carries a paste b
 
 ## Structure
 
-1. Line 1 is the magic banner `# handoff v1`
-2. A YAML block between `---` fences with keys mission, continue_from, stop_rule
+1. Line 1 is the banner `# handoff v1` or `# handoff v2`
+2. A YAML block between `---` fences with keys mission, continue_from, stop_rule, and the pin keys repo and commit
 3. A `FILES` section, one path per line
 4. A `PASTE` section, the exact text the next chat must receive
 5. A `RULES` section, one `KEY: value` per line
 
 ## Parse rules
 
-- Reject the file if line 1 is not `# handoff v1`
-- Read mission, continue_from, and stop_rule from the fenced block
+- Reject the file if line 1 is not `# handoff v1` or `# handoff v2`
+- v2 requires repo and commit; v1 allows them to be missing
+- Read mission, continue_from, and stop_rule from the fenced block. All three are required
+- `repo` is the http(s) URL of the repo the work continues in. Optional in v1, recommended
+- `commit` is the git SHA (7-40 lowercase hex) the FILES are read at. Optional in v1, recommended. If commit is set, repo must be set
+- Files written before repo/commit existed stay valid v1 handoffs
+- The parser is a local structure check. It does not fetch the repo, check FILES exist, or run stop_rule
 - FILES lines are paths. Blank lines are ignored
-- PASTE is raw text until the next section heading
+- PASTE is verbatim raw text until the next section heading
 - RULES split on the first `: `
 - A handoff with an empty FILES list is invalid
 - A handoff with an empty PASTE section is invalid
 
 ## Write rules
 
-- Always start with `# handoff v1`
+- Start new handoffs with `# handoff v2`
 - Name the body to continue, not a summary of the ticks
 - List only files the next chat must open
+- Set repo and commit so FILES are opened at the same version you read
 - Put the paste block in PASTE, verbatim
 - Do not claim a tick continued unless the stop_rule test passed
 

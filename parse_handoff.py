@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 """Parse a .handoff file. Exit 0 only if the handoff is valid."""
 
+import re
 import sys
 from pathlib import Path
 
 
+BANNERS = {"# handoff v1": 1, "# handoff v2": 2}
+SECTIONS = ("FILES", "PASTE", "RULES")
+
+
 def parse(text: str) -> dict:
     lines = text.splitlines()
-    if not lines or lines[0].strip() != "# handoff v1":
-        raise ValueError("line 1 must be # handoff v1")
+    banner = lines[0].strip() if lines else ""
+    if banner not in BANNERS:
+        raise ValueError("line 1 must be # handoff v1 or # handoff v2")
+    version = BANNERS[banner]
 
     if len(lines) < 2 or lines[1].strip() != "---":
         raise ValueError("missing opening --- fence")
@@ -30,6 +37,20 @@ def parse(text: str) -> dict:
     for key in ("mission", "continue_from", "stop_rule"):
         if not meta.get(key):
             raise ValueError(f"missing {key}")
+
+    # Optional pin fields. Older v1 files without them stay valid.
+    repo = meta.get("repo", "")
+    commit = meta.get("commit", "")
+    if repo and not re.fullmatch(r"https?://\S+", repo):
+        raise ValueError(f"repo must be an http(s) URL: {repo}")
+    if commit and not re.fullmatch(r"[0-9a-f]{7,40}", commit):
+        raise ValueError(f"commit must be a 7-40 char lowercase hex git SHA: {commit}")
+    if version >= 2:
+        for key in ("repo", "commit"):
+            if not meta.get(key):
+                raise ValueError(f"v2 requires {key}")
+    if commit and not repo:
+        raise ValueError("commit requires repo")
 
     sections = {"FILES": [], "PASTE": [], "RULES": []}
     current = None
@@ -58,9 +79,12 @@ def parse(text: str) -> dict:
         raise ValueError("empty PASTE section")
 
     return {
+        "version": version,
         "mission": meta["mission"],
         "continue_from": meta["continue_from"],
         "stop_rule": meta["stop_rule"],
+        "repo": repo,
+        "commit": commit,
         "files": files,
         "paste": paste,
         "rules": rules,
@@ -70,9 +94,12 @@ def parse(text: str) -> dict:
 def main() -> int:
     path = Path(sys.argv[1] if len(sys.argv) > 1 else "sample.handoff")
     doc = parse(path.read_text())
+    print(f"version: {doc['version']}")
     print(f"mission: {doc['mission']}")
     print(f"continue_from: {doc['continue_from']}")
     print(f"stop_rule: {doc['stop_rule']}")
+    print(f"repo: {doc['repo'] or '(not set)'}")
+    print(f"commit: {doc['commit'] or '(not pinned)'}")
     print(f"files: {len(doc['files'])}")
     for name in doc["files"]:
         print(f"  {name}")
