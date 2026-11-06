@@ -3,6 +3,8 @@
 mission: Continue Lumen from the tick 8 body
 continue_from: robot_tick_8.py
 stop_rule: tick 1 counts parts; tick 2 must beat that count or the run stops
+repo: https://github.com/fitzyracing1/lumen
+commit: b93be5644b6e5659606bfede4bd086d94cd215c2
 ---
 FILES
 lumen.py
@@ -18,4 +20,3 @@ RULES
 score: 1.36
 parts: sense, balance, grip, critic, memory, repair, route, teach
 result: a committed file, not a tick log
-repo: https://github.com/fitzyracing1/lumen

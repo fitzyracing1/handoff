@@ -12,7 +12,7 @@ A `.handoff` file (kind `handoff`, version 1, MIME `application/x-handoff`) carr
 ## Format (from `handoff.kind`)
 
 1. Line 1 is `# handoff v1`.
-2. A `---` fenced block with `mission`, `continue_from`, and `stop_rule`.
+2. A `---` fenced block with `mission`, `continue_from`, and `stop_rule` (required), and `repo` (http(s) URL) and `commit` (7-40 hex git SHA) (optional in v1, recommended; `commit` needs `repo`).
 3. `FILES` (one path per line), `PASTE` (verbatim text), and `RULES` (`KEY: value`).
 
 A handoff with an empty `FILES` or `PASTE` section is invalid.
@@ -27,6 +27,6 @@ It prints the mission, continue_from, stop_rule, the file list, the paste length
 
 ## Using a handoff in another chat
 
-Reject the file unless line 1 is `# handoff v1`. Open every path under `FILES` before writing anything, and treat `PASTE` as the exact instruction. Do not claim the job continued unless the `stop_rule` test passed.
+Reject the file unless line 1 is `# handoff v1`. Open every path under `FILES`, at `commit` in `repo` when set, before writing anything, and treat `PASTE` as the exact instruction. Do not claim the job continued unless the `stop_rule` test passed.
 
-Copyright (c) 2026 Joshua Almeida
+Copyright (c) 2026 Joshua Almeida. Released under the MIT License, see `LICENSE`.

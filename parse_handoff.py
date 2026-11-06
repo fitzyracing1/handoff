@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Parse a .handoff file. Exit 0 only if the handoff is valid."""
 
+import re
 import sys
 from pathlib import Path
 
@@ -30,6 +31,16 @@ def parse(text: str) -> dict:
     for key in ("mission", "continue_from", "stop_rule"):
         if not meta.get(key):
             raise ValueError(f"missing {key}")
+
+    # Optional pin fields. Older v1 files without them stay valid.
+    repo = meta.get("repo", "")
+    commit = meta.get("commit", "")
+    if repo and not re.fullmatch(r"https?://\S+", repo):
+        raise ValueError(f"repo must be an http(s) URL: {repo}")
+    if commit and not re.fullmatch(r"[0-9a-f]{7,40}", commit):
+        raise ValueError(f"commit must be a 7-40 char lowercase hex git SHA: {commit}")
+    if commit and not repo:
+        raise ValueError("commit requires repo")
 
     sections = {"FILES": [], "PASTE": [], "RULES": []}
     current = None
@@ -61,6 +72,8 @@ def parse(text: str) -> dict:
         "mission": meta["mission"],
         "continue_from": meta["continue_from"],
         "stop_rule": meta["stop_rule"],
+        "repo": repo,
+        "commit": commit,
         "files": files,
         "paste": paste,
         "rules": rules,
@@ -73,6 +86,8 @@ def main() -> int:
     print(f"mission: {doc['mission']}")
     print(f"continue_from: {doc['continue_from']}")
     print(f"stop_rule: {doc['stop_rule']}")
+    print(f"repo: {doc['repo'] or '(not set)'}")
+    print(f"commit: {doc['commit'] or '(not pinned)'}")
     print(f"files: {len(doc['files'])}")
     for name in doc["files"]:
         print(f"  {name}")
